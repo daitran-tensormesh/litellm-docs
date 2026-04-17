@@ -1,4 +1,4 @@
-import DashboardWebRTCTester from "../../../../ui/litellm-dashboard/src/components/WebRTCTester.jsx";
+import DashboardWebRTCTester from "./DashboardWebRTCTester.jsx";
 
 const LIGHT_MODE_OVERRIDES = `
 .wrt-wrap {
