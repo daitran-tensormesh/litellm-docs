@@ -17,19 +17,7 @@ Route Claude Desktop requests through LiteLLM Proxy to get unified logging, budg
 
 ## Step 1: Enable Developer Mode
 
-Open Claude Desktop and click the **Help** menu.
-
-![](https://colony-recorder.s3.amazonaws.com/files/2026-04-22/cb9d656f-f667-447d-990b-6d912fc320e0/ascreenshot_4b1c400715494084a8fd887f2060c21b_text_export.jpeg)
-
-In the Help menu, click **Claude**.
-
-![](https://colony-recorder.s3.amazonaws.com/files/2026-04-22/a8d25ead-f7e1-4cf0-8580-2a8d1eb60b9c/ascreenshot_5ee5e3f906fe4a35abe540591888d51a_text_export.jpeg)
-
-Click **Help** again inside the Claude settings pane.
-
-![](https://colony-recorder.s3.amazonaws.com/files/2026-04-22/9209677b-ccde-4ee9-bbff-6961f907be89/ascreenshot_3c99ff6da6d04a0b8b08192508c7b474_text_export.jpeg)
-
-Click **Enable Developer Mode**.
+In Claude Desktop, go to **Help → Claude → Help** and click **Enable Developer Mode**.
 
 ![](https://colony-recorder.s3.amazonaws.com/files/2026-04-22/64274593-33e6-4a7b-a7f3-a08f8aea8209/ascreenshot_8a9c909a978544888dafb6e0c7e3f468_text_export.jpeg)
 
