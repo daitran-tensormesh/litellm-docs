@@ -98,7 +98,7 @@ REDIS_CIRCUIT_BREAKER_FAILURE_THRESHOLD=5   # failures before opening
 REDIS_CIRCUIT_BREAKER_RECOVERY_TIMEOUT=60  # seconds before probe
 ```
 
-The circuit breaker ships on by default in all LiteLLM versions since `v1.82.0`. No configuration needed for most deployments.
+The circuit breaker is on by default in all LiteLLM versions since `v1.82.0`. No configuration needed for most deployments.
 
 ## Key Takeaways
 
