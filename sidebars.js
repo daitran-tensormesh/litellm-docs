@@ -151,6 +151,7 @@ const sidebars = {
             "tutorials/claude_code_beta_headers",
           ]
         },
+        "tutorials/claude_desktop_cowork",
         "tutorials/opencode_integration",
         "tutorials/openclaw_integration",
         "tutorials/cursor_integration",
