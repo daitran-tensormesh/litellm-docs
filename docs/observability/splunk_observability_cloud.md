@@ -26,7 +26,7 @@ litellm_settings:
   callbacks: ["otel"]
 ```
 
-**Step 2:** Set the OTLP environment variables LiteLLM reads via `OpenTelemetryConfig.from_env()` (see [`opentelemetry.py` in the LiteLLM repo](https://github.com/BerriAI/litellm/blob/main/litellm/integrations/opentelemetry.py) and the [OpenTelemetry integration](./opentelemetry_integration.md) doc).
+**Step 2:** Set the OTLP environment variables below.
 
 You can load them from the process environment, a `.env` file, or the proxy **`environment_variables`** block in `config.yaml` ([config fields](/docs/proxy/configs)).
 
