@@ -1,6 +1,3 @@
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 # Splunk Observability Cloud (OpenTelemetry)
 
 Send LiteLLM traces to [Splunk Observability Cloud](https://www.splunk.com/en_us/products/observability-cloud.html) using the built-in **`otel`** callback and standard OpenTelemetry OTLP environment variables.
@@ -17,15 +14,21 @@ Or [watch on Loom](https://www.loom.com/share/9dc21b753bbe4f6fb3c1b44c06e39c20).
 
 1. Splunk Observability Cloud account and an **ingest access token** (used as `X-SF-Token`).
 2. Your **realm** (for example `eu1`, `us0`) from the Splunk Observability Cloud UI or docs.
-3. OpenTelemetry OTLP packages (same as the main OTEL guide):
 
-```shell
-uv add opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp
+## LiteLLM Proxy
+
+Same flow as integrations like [Datadog Logs](./datadog#datadog-logs): configure **`config.yaml`**, then set environment variables, then start the proxy.
+
+**Step 1:** In `config.yaml`, enable the OpenTelemetry callback:
+
+```yaml
+litellm_settings:
+  callbacks: ["otel"]
 ```
 
-## Environment variables
+**Step 2:** Set the OTLP environment variables LiteLLM reads via `OpenTelemetryConfig.from_env()` (see [`opentelemetry.py` in the LiteLLM repo](https://github.com/BerriAI/litellm/blob/main/litellm/integrations/opentelemetry.py) and the [OpenTelemetry integration](./opentelemetry_integration.md) doc).
 
-LiteLLM reads configuration via `OpenTelemetryConfig.from_env()` (see [`opentelemetry.py` in the LiteLLM repo](https://github.com/BerriAI/litellm/blob/main/litellm/integrations/opentelemetry.py)).
+You can load them from the process environment, a `.env` file, or the proxy **`environment_variables`** block in `config.yaml` ([config fields](/docs/proxy/configs)).
 
 | Purpose | Variable |
 |--------|----------|
@@ -36,81 +39,17 @@ LiteLLM reads configuration via `OpenTelemetryConfig.from_env()` (see [`opentele
 
 **Precedence:** `OTEL_EXPORTER_OTLP_PROTOCOL` is read before legacy `OTEL_EXPORTER`. If both are set, the OTLP protocol variable wins. `OTEL_EXPORTER_OTLP_ENDPOINT` is preferred over `OTEL_ENDPOINT` when both are set.
 
-:::warning Sensitive data in traces
-
-OpenTelemetry spans may include request/response content and metadata. Review [redacting messages and responses](/docs/observability/opentelemetry_integration#redacting-messages-response-content-from-opentelemetry-logging) and [scrubbing / PII guidance](/docs/observability/scrub_data) before enabling full payloads in production.
-
-:::
-
-## LiteLLM Proxy
-
-<Tabs>
-<TabItem value="yaml" label="config.yaml">
-
-```yaml
-model_list:
-  - model_name: gpt-4o-mini
-    litellm_params:
-      model: gpt-4o-mini
-      api_key: os.environ/OPENAI_API_KEY
-
-litellm_settings:
-  callbacks: ["otel"]
-
-general_settings:
-  master_key: sk-1234
-
-environment_variables:
-  OTEL_EXPORTER_OTLP_ENDPOINT: "https://ingest.eu1.observability.splunkcloud.com/v2/trace/otlp"
-  OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
-  OTEL_EXPORTER_OTLP_HEADERS: "os.environ/SPLUNK_OTEL_HEADERS"
-  OTEL_SERVICE_NAME: "litellm-proxy"
+```shell
+OTEL_EXPORTER_OTLP_ENDPOINT="https://ingest.eu1.observability.splunkcloud.com/v2/trace/otlp"
+OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
+OTEL_EXPORTER_OTLP_HEADERS="X-SF-Token=<your-ingest-access-token>"
+OTEL_SERVICE_NAME="litellm-proxy"
 ```
 
-Point `SPLUNK_OTEL_HEADERS` (or inline the header string) at a secret that expands to `X-SF-Token=<token>`.
-
-</TabItem>
-<TabItem value="env" label=".env (example)">
-
-```dotenv
-SPLUNK_ACCESS_TOKEN=your-ingest-access-token
-
-OTEL_EXPORTER_OTLP_ENDPOINT=https://ingest.eu1.observability.splunkcloud.com/v2/trace/otlp
-OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-OTEL_EXPORTER_OTLP_HEADERS=X-SF-Token=${SPLUNK_ACCESS_TOKEN}
-OTEL_SERVICE_NAME=litellm-proxy
-```
-
-Load these into the process environment before starting the proxy (for example `export` / systemd / Kubernetes secrets).
-
-</TabItem>
-</Tabs>
-
-Start the proxy:
+**Step 3:** Start the proxy:
 
 ```bash
 litellm --config /path/to/config.yaml
-```
-
-## Python SDK
-
-```python
-import os
-import litellm
-
-os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = (
-    "https://ingest.eu1.observability.splunkcloud.com/v2/trace/otlp"
-)
-os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = "http/protobuf"
-os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = "X-SF-Token=your-ingest-access-token"
-os.environ["OTEL_SERVICE_NAME"] = "my-app"
-
-litellm.callbacks = ["otel"]
-
-response = litellm.completion(
-    model="gpt-4o-mini",
-    messages=[{"role": "user", "content": "Hello"}],
-)
 ```
 
 ## Verify traces
