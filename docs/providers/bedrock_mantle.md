@@ -15,7 +15,7 @@ Use this provider to call Bedrock Mantle models with accurate **AWS Bedrock pric
 
 ## Claude Mythos
 
-Claude Mythos (`anthropic.claude-mythos-preview`) is available on Bedrock Mantle with **1M token input context**, 128K output, and support for reasoning, vision, and tool use.
+[Claude Mythos](https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-mythos-preview.html) (`anthropic.claude-mythos-preview`) is available on Bedrock Mantle with **1M token input context**, 128K output, and support for reasoning, vision, and tool use.
 
 Use the `bedrock/mantle/` route prefix with standard AWS credentials.
 
