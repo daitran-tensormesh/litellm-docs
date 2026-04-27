@@ -17,6 +17,8 @@ Use this provider to call Bedrock Mantle models with accurate **AWS Bedrock pric
 
 Claude Mythos (`anthropic.claude-mythos-preview`) is available on Bedrock Mantle with **1M token input context**, 128K output, and support for reasoning, vision, and tool use.
 
+Use the `bedrock/mantle/` route prefix with standard AWS credentials.
+
 <Tabs>
 <TabItem value="sdk" label="SDK">
 
@@ -24,10 +26,12 @@ Claude Mythos (`anthropic.claude-mythos-preview`) is available on Bedrock Mantle
 from litellm import completion
 import os
 
-os.environ['BEDROCK_MANTLE_API_KEY'] = "your-bedrock-api-key"
+os.environ['AWS_ACCESS_KEY_ID'] = "your-aws-access-key"
+os.environ['AWS_SECRET_ACCESS_KEY'] = "your-aws-secret-key"
+os.environ['AWS_REGION_NAME'] = "us-east-1"
 
 response = completion(
-    model="bedrock_mantle/anthropic.claude-mythos-preview",
+    model="bedrock/mantle/anthropic.claude-mythos-preview",
     messages=[{"role": "user", "content": "Explain quantum entanglement simply."}],
 )
 print(response)
@@ -40,10 +44,12 @@ print(response)
 from litellm import completion
 import os
 
-os.environ['BEDROCK_MANTLE_API_KEY'] = "your-bedrock-api-key"
+os.environ['AWS_ACCESS_KEY_ID'] = "your-aws-access-key"
+os.environ['AWS_SECRET_ACCESS_KEY'] = "your-aws-secret-key"
+os.environ['AWS_REGION_NAME'] = "us-east-1"
 
 response = completion(
-    model="bedrock_mantle/anthropic.claude-mythos-preview",
+    model="bedrock/mantle/anthropic.claude-mythos-preview",
     messages=[{"role": "user", "content": "Solve step by step: what is 2 + 2?"}],
     thinking={"type": "enabled", "budget_tokens": 5000},
 )
@@ -53,14 +59,14 @@ print(response)
 </TabItem>
 <TabItem value="messages" label="SDK (/messages)">
 
-Use the native Anthropic Messages API format via `bedrock/mantle/` prefix:
-
 ```python
 import asyncio
 import litellm
 import os
 
-os.environ['BEDROCK_MANTLE_API_KEY'] = "your-bedrock-api-key"
+os.environ['AWS_ACCESS_KEY_ID'] = "your-aws-access-key"
+os.environ['AWS_SECRET_ACCESS_KEY'] = "your-aws-secret-key"
+os.environ['AWS_REGION_NAME'] = "us-east-1"
 
 async def main():
     response = await litellm.anthropic_messages(
@@ -82,8 +88,8 @@ asyncio.run(main())
 model_list:
   - model_name: claude-mythos
     litellm_params:
-      model: bedrock_mantle/anthropic.claude-mythos-preview
-      api_key: os.environ/BEDROCK_MANTLE_API_KEY
+      model: bedrock/mantle/anthropic.claude-mythos-preview
+      aws_region_name: us-east-1
 ```
 
 **2. Start the proxy**
