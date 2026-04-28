@@ -1,6 +1,6 @@
 ---
-title: "v1.83.10-stable - Claude Opus 4.7, Prompt Compression & Multi-Window Budgets"
-slug: "v1-83-10-stable"
+title: "v1.83.10 - Claude Opus 4.7, Prompt Compression & Multi-Window Budgets"
+slug: "v1-83-10"
 date: 2026-04-27T00:00:00
 authors:
   - name: Krrish Dholakia
