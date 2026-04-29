@@ -71,4 +71,4 @@ If the query returns results you'd like us to review, send them over and we can 
 
 We will continue investing in our bug bounty program and coordinated disclosure process so issues can be identified, fixed, and communicated responsibly.
 
-If you find a security issue in LiteLLM, please report it through our GitHub Security Advisory process or our bug bounty program.
+If you find a security issue in LiteLLM, please report it through our [GitHub Security Advisory process or our bug bounty program](https://github.com/BerriAI/litellm/security).
