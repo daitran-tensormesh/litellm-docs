@@ -12,6 +12,20 @@ Supported Providers:
 - Deepseek API (`deepseek/`)
 - xAI (`xai/`)
 
+:::warning Minimum token requirements
+Prompt caching is silently skipped when the input is below the provider's minimum — **no error is returned**. Always verify caching occurred by checking `cache_creation_input_tokens` in the response.
+
+| Provider | Minimum input tokens |
+|---|---|
+| OpenAI | 1,024 |
+| Anthropic (Claude 3.x) | 1,024 |
+| Anthropic (Claude Sonnet/Opus 4.x) | 2,048 |
+| Anthropic (Claude Haiku 4.5+, Opus 4.5+) | 4,096 |
+| Bedrock (Claude 3.5, 3.7) | 1,024 |
+| Bedrock (Claude Sonnet 4.x) | 2,048 |
+| Google Gemini | 1,024 |
+:::
+
 For the supported providers, LiteLLM follows the OpenAI prompt caching usage object format:
 
 ```bash
@@ -359,14 +373,15 @@ print(response.usage)
 </TabItem>
 </Tabs>
 
-:::tip Minimum Token Requirement
-Prompt caching requires a minimum number of tokens per model. Prompts below the minimum are processed normally without caching — no error is returned. Check `cache_creation_input_tokens` in the response to confirm caching occurred.
+:::tip Minimum tokens (Anthropic)
+Prompts below the minimum are processed without caching — no error is returned. Check `cache_creation_input_tokens` in the response.
 
-| Model family | Minimum input tokens |
+| Model | Min tokens |
 |---|---|
-| Claude 3.x Sonnet, Opus, Haiku 3 | 1,024 |
-| Claude 3.5 Sonnet, Haiku 3.5 | 1,024–2,048 (model-specific) |
-| Claude Sonnet 4.x, Opus 4.x | 1,024–2,048 (model-specific) |
+| Claude 3 Haiku, 3 Sonnet, 3 Opus | 1,024 |
+| Claude 3.5 Sonnet, 3.7 Sonnet | 1,024 |
+| Claude 3.5 Haiku | 2,048 |
+| Claude Sonnet 4.5, Sonnet 4.6, Opus 4 | 2,048 |
 | Claude Haiku 4.5, Opus 4.5+ | 4,096 |
 :::
 
@@ -374,8 +389,13 @@ Prompt caching requires a minimum number of tokens per model. Prompts below the 
 
 LiteLLM automatically translates OpenAI-format `cache_control` markers to Bedrock's native `cachePoint` format — no changes needed to your existing code if you're already using `cache_control`.
 
-:::tip Minimum Token Requirement
-Minimum tokens per cache checkpoint on Bedrock varies by model (see table below). Prompts below the minimum are processed without caching and no error is returned — check `cache_creation_input_tokens` in the response to confirm a cache write occurred.
+:::tip Minimum tokens (Bedrock)
+Prompts below the minimum are processed without caching — no error is returned. Check `cache_creation_input_tokens` in the response.
+
+| Model family | Min tokens per request |
+|---|---|
+| Claude 3.5 Sonnet v2, Claude 3.7 Sonnet | 1,024 |
+| Claude Sonnet 4.5, Sonnet 4.6 | 2,048 |
 :::
 
 <Tabs>
@@ -392,7 +412,7 @@ response = litellm.completion(
             "content": [
                 {
                     "type": "text",
-                    "text": "<your large system prompt here - must be at least 1024 tokens>",
+                    "text": "<your large system prompt here — min 1,024 tokens for Claude 3.x, 2,048 for Claude Sonnet 4.x>",
                     "cache_control": {"type": "ephemeral"}
                 }
             ]
@@ -438,7 +458,7 @@ curl -X POST http://localhost:4000/chat/completions \
         "content": [
           {
             "type": "text",
-            "text": "<your large system prompt here - must be at least 1024 tokens>",
+            "text": "<your large system prompt here — min 1,024 tokens for Claude 3.x, 2,048 for Claude Sonnet 4.x>",
             "cache_control": {"type": "ephemeral"}
           }
         ]
