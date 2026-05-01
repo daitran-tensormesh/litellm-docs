@@ -105,6 +105,11 @@ litellm_settings:
     ttl: 600 # ttl for caching
     disable_copilot_system_to_assistant: False # DEPRECATED - GitHub Copilot API supports system prompts.
 
+  # Virtual key auth cache — shares API key / virtual-key auth across workers via Redis.
+  # Reduces DB round trips when caches are cold on new workers or pods.
+  # Requires litellm_settings.cache: true AND cache_params.type: redis above.
+  enable_redis_auth_cache: false
+
 callback_settings:
   otel:
     message_logging: boolean # OTEL logging callback specific settings
@@ -200,6 +205,7 @@ router_settings:
 | context_window_fallbacks | array of objects | Fallbacks to use when a ContextWindowExceededError is encountered. [Further docs](./reliability#context-window-fallbacks) |
 | cache | boolean | If true, enables caching. [Further docs](./caching) |
 | cache_params | object | Parameters for the cache. [Further docs](./caching#supported-cache_params-on-proxy-configyaml) |
+| enable_redis_auth_cache | boolean | When `true`, stores virtual-key auth payloads in Redis (same client as response caching) so every worker/pod shares cached auth lookups—fewer repeated database reads on cache misses. **Requires `cache: true` and `cache_params.type: redis`** (Redis or Redis Cluster). Optional: set `general_settings.user_api_key_cache_ttl` so TTL applies consistently to memory and Redis. [Further docs](./caching#virtual-key-authentication-cache-redis) |
 | disable_end_user_cost_tracking | boolean | If true, turns off end user cost tracking on prometheus metrics + litellm spend logs table on proxy. |
 | disable_end_user_cost_tracking_prometheus_only | boolean | If true, turns off end user cost tracking on prometheus metrics only. |
 | cost_discount_config | object | Provider-specific percentage discounts applied to cost calculations. Configure under `litellm_settings`. [Further docs](./provider_discounts) |
