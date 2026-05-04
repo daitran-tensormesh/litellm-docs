@@ -638,11 +638,13 @@ router_settings:
 | DEFAULT_REASONING_EFFORT_DISABLE_THINKING_BUDGET | Default reasoning effort disable thinking budget. Default is 0
 | DEFAULT_REASONING_EFFORT_HIGH_THINKING_BUDGET | Default high reasoning effort thinking budget. Default is 4096
 | DEFAULT_REASONING_EFFORT_LOW_THINKING_BUDGET | Default low reasoning effort thinking budget. Default is 1024
+| DEFAULT_REASONING_EFFORT_MAX_THINKING_BUDGET | Default `max` reasoning effort thinking budget for legacy Anthropic models that use `thinking.budget_tokens` (Claude 4.5 series + Haiku). On Claude 4.6/4.7 the `max` tier is routed via adaptive `output_config.effort=max` instead and ignores this constant. Default is 16384
 | DEFAULT_REASONING_EFFORT_MEDIUM_THINKING_BUDGET | Default medium reasoning effort thinking budget. Default is 2048
 | DEFAULT_REASONING_EFFORT_MINIMAL_THINKING_BUDGET | Default minimal reasoning effort thinking budget. Default is 512
 | DEFAULT_REASONING_EFFORT_MINIMAL_THINKING_BUDGET_GEMINI_2_5_FLASH | Default minimal reasoning effort thinking budget for Gemini 2.5 Flash. Default is 512
 | DEFAULT_REASONING_EFFORT_MINIMAL_THINKING_BUDGET_GEMINI_2_5_FLASH_LITE | Default minimal reasoning effort thinking budget for Gemini 2.5 Flash Lite. Default is 512
 | DEFAULT_REASONING_EFFORT_MINIMAL_THINKING_BUDGET_GEMINI_2_5_PRO | Default minimal reasoning effort thinking budget for Gemini 2.5 Pro. Default is 512
+| DEFAULT_REASONING_EFFORT_XHIGH_THINKING_BUDGET | Default `xhigh` reasoning effort thinking budget for legacy Anthropic models that use `thinking.budget_tokens`. Continues the 2&times; progression 1024 &rarr; 2048 &rarr; 4096 &rarr; 8192 from low/medium/high. On Claude 4.6/4.7 the `xhigh` tier is routed via adaptive `output_config.effort=xhigh` instead and ignores this constant. Default is 8192
 | DEFAULT_REDIS_MAJOR_VERSION | Default Redis major version to assume when version cannot be determined. Default is 7
 | DEFAULT_REDIS_SYNC_INTERVAL | Default Redis synchronization interval in seconds. Default is 1
 | DEFAULT_SEMANTIC_GUARD_EMBEDDING_MODEL | Default embedding model for Semantic Guard (route-matching guardrail). Default is "text-embedding-3-small"
