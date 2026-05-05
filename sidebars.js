@@ -405,6 +405,7 @@ const sidebars = {
                 "proxy/ai_hub",
                 "proxy/model_compare_ui",
                 "proxy/ui_store_model_db_setting",
+                "proxy/ui/routing_groups",
               ]
             },
             {
