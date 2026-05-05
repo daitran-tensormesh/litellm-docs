@@ -39,21 +39,19 @@
   font-weight: 500;
   letter-spacing: 0.01em;
   border-radius: 8px;
-  border: 1.5px solid var(--ifm-color-emphasis-400);
+  border: 1.5px solid #d4d4d4;
   background: var(--ifm-background-color);
-  color: var(--ifm-color-emphasis-700);
-  transition: color 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.10), 0 1px 1px rgba(0,0,0,0.06);
+  color: #000;
+  transition: background 0.15s, border-color 0.15s;
+  box-shadow: none;
   white-space: nowrap;
   user-select: none;
   line-height: 1.4;
 }
 
 .copyBtn:not(:disabled):hover .copyBtnInner {
-  color: #000;
-  border-color: var(--ifm-color-primary-light);
-  background: var(--ifm-color-primary-lightest, color-mix(in srgb, var(--ifm-color-primary) 8%, transparent));
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: #ebebeb;
+  border-color: #d4d4d4;
 }
 
 .copyBtn:not(:disabled):active .copyBtnInner {
