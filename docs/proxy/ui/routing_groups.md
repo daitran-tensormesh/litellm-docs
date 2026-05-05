@@ -60,6 +60,48 @@ router_settings:
 
 See [Routing Groups - Per-Model Strategies](../../routing.md#routing-groups---per-model-strategies) for the full schema, multi-group examples, and runtime update behavior.
 
+## Test a Request
+
+After configuring a group, confirm that requests to a grouped model are actually being routed by that group's strategy. LiteLLM logs the `routing_group`, `model`, and `strategy` chosen for every request, so verification comes down to sending a request and inspecting the proxy logs.
+
+### 1. Send a request
+
+Send a request to a `model_name` that's claimed by a routing group:
+
+```bash
+curl -X POST 'http://localhost:4000/v1/chat/completions' \
+  -H 'Authorization: Bearer <your-key>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "claude-sonnet",
+    "messages": [{"role": "user", "content": "ping"}]
+  }'
+```
+
+![Send a request](../../../static/img/routing-groups/model-request.png)
+
+### 2. Inspect the proxy logs
+
+Each request emits a log line containing `routing_group=<name> model=<model> strategy=<strategy>`.
+
+**Plain logs** — grep the proxy stdout directly:
+
+```bash
+kubectl logs -n litellm -l app=litellm --tail=200 | grep routing_group=
+```
+
+**Loki (LogQL)** — extract and reformat the fields for a clean readout:
+
+```logql
+{namespace="litellm", pod=~"<your-litellm-pod-regex>"} |= "routing_group="
+| regexp `routing_group=(?P<routing_group>\S+) model=(?P<model>\S+) strategy=(?P<strategy>\S+)`
+| line_format `{{.routing_group}} {{.model}} {{.strategy}}`
+```
+
+![Verify the routing group in logs](../../../static/img/routing-groups/verify-rg.png)
+
+A row like `anthropic-latency claude-sonnet latency-based-routing` confirms the request hit the expected group. If you instead see `default <strategy>`, the model isn't claimed by the group — check the group's **Models** list.
+
 ## Notes
 
 - Each `model_name` may belong to **at most one** routing group. Overlap is rejected.
