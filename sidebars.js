@@ -985,6 +985,7 @@ const sidebars = {
             "providers/nvidia_nim_rerank",
           ]
         },
+        "providers/nvidia_riva",
         "providers/oci",
         "providers/ollama",
         "providers/openrouter",
