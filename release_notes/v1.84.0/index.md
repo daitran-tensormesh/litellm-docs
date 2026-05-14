@@ -86,7 +86,7 @@ Everything below landed on top of `v1.84.0-rc.1` and is included in `v1.84.0`. I
 - **Lazy-feature loading under a non-empty `SERVER_ROOT_PATH`** no longer 404s on routes such as `/api/v1/policies/attachments/list`; strip the prefix before lazy-feature match and cache the normalized path at middleware init — [PR #27812](https://github.com/BerriAI/litellm/pull/27812)
 
 ### Tagging & metrics
-- **Always merge caller-supplied `tags` into request metadata** instead of clobbering server-side tags — [PR #27789](https://github.com/BerriAI/litellm/pull/27789)
+- **⚠️ Reverted the v1.83.10 caller-tag strip / `allow_client_tags` opt-in** — caller-supplied tags merge into request metadata again; the strip is no longer enforced. **See the new entry under Important Behavior Changes → Tags below for the full impact.** — [PR #27789](https://github.com/BerriAI/litellm/pull/27789)
 - **Point the `/metrics` 401 hint at the actual opt-out flag** — [PR #27505](https://github.com/BerriAI/litellm/pull/27505)
 
 ### Packaging
@@ -230,6 +230,15 @@ This release tightens a number of defaults across auth, ingress, callbacks, MCP,
 #### "Store Prompts in Spend Logs" toggle moved to Admin Settings
 - **What changed:** Both "Store Prompts in Spend Logs" and "Maximum Spend Logs Retention Period" moved from a gear-icon modal on the Logs page to **Admin Settings → Logging Settings**. The gear was visible to non-admins and surfaced 403s on save.
 - **Restore prior behavior:** None — controls are admin-only as `/config/update` and `/config/list` already required.
+
+### Tags
+
+#### ⚠️ Reverted: v1.83.10 caller-tag strip / `allow_client_tags` opt-in
+- **What changed:** **This release reverts the [v1.83.10 breaking change](/release_notes/v1.83.10/v1-83-10) that stripped caller-supplied tags unless the key/team metadata had `allow_client_tags: true`.** Caller-supplied tags from `x-litellm-tags`, body-level `tags`, and `metadata.tags` now flow into `metadata.tags` again and union with admin-configured static tags from key/team/project metadata — the proxy's behavior is back to what it was before v1.83.10. The pre-call strip block in `litellm_pre_call_utils.py` is removed, and the flag has no schema or endpoint footprint, so leftover `allow_client_tags: true` values on existing keys/teams are inert.
+- **Who is affected:**
+  - Operators who set `metadata.allow_client_tags: true` on keys/teams to opt into client tags: the flag is now a no-op and can be cleaned up at leisure.
+  - **Operators who relied on the v1.83.10 strip to block client-supplied tags reaching tag-based routing or tag-based spend attribution: the strip is no longer enforced.** Re-evaluate your tag-based routing and cost-attribution exposure before upgrading.
+- **Restore prior behavior:** None — the strip path is gone from the proxy. If caller-supplied tags must be blocked, filter them upstream (gateway / ingress) or in a custom pre-call hook.
 
 ---
 
