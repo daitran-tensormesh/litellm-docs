@@ -1,7 +1,7 @@
 ---
-title: "v1.84.0-rc.1 - Reliability hardening + multi-pod budget accuracy"
-slug: "v1-84-0-rc-1"
-date: 2026-05-05T00:00:00
+title: "v1.84.0 - Reliability hardening + multi-pod budget accuracy"
+slug: "v1-84-0"
+date: 2026-05-14T00:00:00
 authors:
   - name: Krrish Dholakia
     title: CEO, LiteLLM
@@ -30,22 +30,20 @@ import TabItem from '@theme/TabItem';
 docker run \
 -e STORE_MODEL_IN_DB=True \
 -p 4000:4000 \
-docker.litellm.ai/berriai/litellm:1.84.0-rc.1
+docker.litellm.ai/berriai/litellm:1.84.0
 ```
 
 </TabItem>
 <TabItem value="pip" label="Pip">
 
 ```bash
-pip install litellm==1.84.0rc1
+pip install litellm==1.84.0
 ```
 
 </TabItem>
 </Tabs>
 
-> This is a release candidate cut on top of `v1.83.14-stable`. Validate on a staging proxy before promoting to the next stable tag.
->
-> **Heads up — large bundle of behavioral changes.** This rc consolidates a lot of reliability and hardening work that shipped in tight sequence. The **Important Behavior Changes** section below covers everything that changes a default, removes a configuration shortcut, or alters a request/response shape, with the opt-out you need to keep prior behavior. Read that section before upgrading a production deployment.
+> **Heads up — large bundle of behavioral changes.** This release consolidates a lot of reliability and hardening work that shipped in tight sequence. The **Important Behavior Changes** section below covers everything that changes a default, removes a configuration shortcut, or alters a request/response shape, with the opt-out you need to keep prior behavior. Read that section before upgrading a production deployment. If you already validated against `v1.84.0-rc.1`, see the **Changes since v1.84.0-rc.1** section for the post-rc delta.
 
 ## Key Highlights
 
@@ -56,6 +54,44 @@ pip install litellm==1.84.0rc1
 - **MCP OAuth + Azure Entra discovery support**, opt-in short-ID tool prefix to keep MCP tool names under the 60-char limit, and OAuth root-endpoint visibility now matches explicit server-name lookup.
 - **Durable agent workflow run tracking** via a new `/v1/workflows/runs` REST surface backed by `LiteLLM_WorkflowRun` / `LiteLLM_WorkflowEvent` / `LiteLLM_WorkflowMessage` tables. Spend logs `session_id` joins for free cost attribution.
 - **Per-model routing strategies via Routing Groups.** New `router_settings.routing_groups` schema binds a list of `model_name`s to its own routing strategy (e.g. `latency-based-routing` for `gpt-4o`, `simple-shuffle` for cheaper models) within a single router. Configurable in `proxy_config.yaml` or from the LiteLLM dashboard under General Settings → Routing Groups; UI-managed groups persist and override the YAML values.
+
+---
+
+## Changes since `v1.84.0-rc.1`
+
+Everything below landed on top of `v1.84.0-rc.1` and is included in `v1.84.0`. If you already validated against the rc, this is the only delta to re-test.
+
+### Hardening
+- **`/key/update` authorization checks** — [PR #27878](https://github.com/BerriAI/litellm/pull/27878)
+- **`/key/regenerate` ownership-rebind + premium-gate guards** — [PR #27793](https://github.com/BerriAI/litellm/pull/27793)
+- **Reject bare strings at file-input sinks** to prevent local-file reads via crafted request bodies — [PR #27762](https://github.com/BerriAI/litellm/pull/27762)
+- **Refuse remote-URL instance-fn loads** outside the config-file path — [PR #27801](https://github.com/BerriAI/litellm/pull/27801)
+- **Cover `extra_body` + `azure_ad_token` in banned-params check** — [PR #27898](https://github.com/BerriAI/litellm/pull/27898)
+- **MCP BYOK / OAuth: block SSRF fields in RAG ingest `vector_store` config; block client-side pricing injection via request body** — [PR #27892](https://github.com/BerriAI/litellm/pull/27892)
+
+### Budget reservation
+- **Bound budget reservation per request** instead of pinning to the entire remaining team/key/user headroom on requests without `max_tokens` — [PR #27509](https://github.com/BerriAI/litellm/pull/27509)
+- **Image generation: reserve per-image cost** rather than max-tokens cost; gate strictly on model mode
+
+### Health probes
+- **Re-expose `db` status on the unauthenticated `/health/readiness` payload** so external probes can distinguish DB-unreachable workers without auth — [PR #27866](https://github.com/BerriAI/litellm/pull/27866)
+- **UI fetches `litellm_version` + `is_detailed_debug` from `/health/readiness/details`** (auth-gated) since those fields were moved off the public payload — [PR #27896](https://github.com/BerriAI/litellm/pull/27896)
+- **UI: disable retries on `/health/readiness/details` + cover token forwarding**
+
+### MCP
+- **Forward configured `extra_headers` from the MCP client to upstream OpenAPI HTTP calls** (closes [#26794](https://github.com/BerriAI/litellm/issues/26794)) — [PR #27383](https://github.com/BerriAI/litellm/pull/27383)
+- **Static headers win over forwarded headers in OpenAPI MCP**
+
+### Routing under `SERVER_ROOT_PATH`
+- **Lazy-feature loading under a non-empty `SERVER_ROOT_PATH`** no longer 404s on routes such as `/api/v1/policies/attachments/list`; strip the prefix before lazy-feature match and cache the normalized path at middleware init — [PR #27812](https://github.com/BerriAI/litellm/pull/27812)
+
+### Tagging & metrics
+- **Always merge caller-supplied `tags` into request metadata** instead of clobbering server-side tags — [PR #27789](https://github.com/BerriAI/litellm/pull/27789)
+- **Point the `/metrics` 401 hint at the actual opt-out flag** — [PR #27505](https://github.com/BerriAI/litellm/pull/27505)
+
+### Packaging
+- **Relax core runtime pins to ranges** so downstream packages can resolve a single shared `openai`/etc. version — [PR #27241](https://github.com/BerriAI/litellm/pull/27241)
+- **Raise `jinja2` floor in `[project.dependencies]` to `>=3.1.6`** to match the lockfile — [PR #27552](https://github.com/BerriAI/litellm/pull/27552)
 
 ---
 
@@ -421,11 +457,11 @@ This release tightens a number of defaults across auth, ingress, callbacks, MCP,
 - @yassinkortam made their first contribution in [#26730](https://github.com/BerriAI/litellm/pull/26730)
 - @sruthi-sixt-26 made their first contribution in [#26814](https://github.com/BerriAI/litellm/pull/26814)
 
-**Full Changelog**: https://github.com/BerriAI/litellm/compare/v1.83.14-stable...v1.84.0-rc.1
+**Full Changelog**: https://github.com/BerriAI/litellm/compare/v1.83.14-stable...v1.84.0
 
 ---
 
-## 05/05/2026
+## 05/05/2026 (`v1.84.0-rc.1`)
 
 * New Models / Updated Models: 19
 * LLM API Endpoints: 6
@@ -437,4 +473,18 @@ This release tightens a number of defaults across auth, ingress, callbacks, MCP,
 * General Proxy Improvements: 2
 * Documentation Updates: 1
 
-Total: 78 PRs
+Subtotal: 78 PRs
+
+## 05/14/2026 (`v1.84.0` — delta on top of rc.1)
+
+* Hardening: 6
+* Budget reservation: 2
+* Health probes: 3
+* MCP: 2
+* Routing under `SERVER_ROOT_PATH`: 1
+* Tagging & metrics: 2
+* Packaging: 2
+
+Subtotal: 18 PRs
+
+Total: 96 PRs
